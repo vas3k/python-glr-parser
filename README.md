@@ -16,7 +16,7 @@ dictionaries = {
 }
 
 grammar = u"""
-    S = adj&lt;agr-gnc=1&gt; CLOTHES
+    S = adj<agr-gnc=1> CLOTHES
 """
 
 glr = GLRParser(grammar, dictionaries=dictionaries)
