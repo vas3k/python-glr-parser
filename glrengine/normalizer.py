@@ -41,7 +41,7 @@ class GLRNormalizer(object):
                     tokname = self.TAG_MAPPER.get(morphed[0].tag.POS) or tokname
                     # tokparams = unicode(morphed[0].tag).lower().split(",")
                     tokparams = morphed[0].tag
-                    print tokname, tokvalue, tokpos, tokparams, orig_tokvalue
+                    # print tokname, tokvalue, tokpos, tokparams, orig_tokvalue
             results.append((tokname, tokvalue, tokpos, tokparams, orig_tokvalue))
         return results
 

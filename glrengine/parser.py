@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
 from itertools import izip, chain
 from scanner import make_scanner
 from lr import *
@@ -44,7 +45,11 @@ def make_rules(start, grammar, kw):
         elif tokname == 'label':
             # "a=b, b=c, d" -> {"a": "b", "b": "c", "d": None}
             tokvalue = tokvalue.strip().replace(" ", "")
-            label = dict([tuple(l.split("=", 1) + [None])[:2] for l in tokvalue[1:-1].split(",")])
+            label = defaultdict(list)
+            for l in tokvalue[1:-1].split(","):
+                key, value = tuple(l.split("=", 1) + [None])[:2]
+                label[key].append(value)
+            # label = dict([tuple(l.split("=", 1) + [None])[:2] for l in tokvalue[1:-1].split(",")])
             labels[-1] = label
     yield (edit_rule, tuple(words), edit_rule_commit, labels[1:-1])
 

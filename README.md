@@ -23,11 +23,12 @@ grammar = u"""
 
 glr = GLRParser(grammar, dictionaries=dictionaries)
 
-text = u"на вешалке висят три красивые куртки и вонючая шуба"
+text = u"на вешалке висят пять красивых курток и вонючая шуба"
 for parsed in glr.parse(text):
-    print parsed
+    print "FOUND:", parsed
 
-# вернет ["красивые куртки", "вонючая шуба"]
+# FOUND: красивых курток
+# FOUND: вонючая шуба
 
 ```
 
@@ -109,5 +110,7 @@ dictionaries = {
 
 
 Можно указывать сразу по нескольку лейблов через запятую. Например noun&lt;reg-l-all, gram=nomn&gt; — существительное в именительном падеже, все буквы которого в нижнем регистре.
+
+Если нужно указать несколько значений одного лейбла, это можно делать так: &lt;gram=nomn, gram=masc&gt; (слово мужского рода в именительном падеже).
 
 Список грамматических категорий см. в доке pymorphy2: https://pymorphy2.readthedocs.org/en/latest/user/grammemes.html

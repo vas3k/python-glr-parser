@@ -25,36 +25,40 @@ def regex_label(value, tokens, i):
 def agr_gnc_label(value, tokens, i):
     one = tokens[i][3]
     another = tokens[i+int(value)][3]
-
-    return one.case == another.case and one.gender == another.gender and one.number == another.number
+    return (one.case == another.case or not one.case or not another.case) \
+        and (one.gender == another.gender or not one.gender or not another.gender) \
+        and (one.number == another.number or not one.number or not another.number)
 
 
 def agr_nc_label(value, tokens, i):
     one = tokens[i][3]
     another = tokens[i+int(value)][3]
 
-    return one.case == another.case and one.number == another.number
+    return (one.case == another.case or not one.case or not another.case) \
+        and (one.number == another.number or not one.number or not another.number)
 
 
 def agr_c_label(value, tokens, i):
     one = tokens[i][3]
     another = tokens[i+int(value)][3]
 
-    return one.case == another.case
+    return one.case == another.case or not one.case or not another.case
 
 
 def agr_gn_label(value, tokens, i):
     one = tokens[i][3]
     another = tokens[i+int(value)][3]
 
-    return one.gender == another.gender and one.number == another.number
+    return (one.gender == another.gender or not one.gender or not another.gender) \
+        and (one.number == another.number or not one.number or not another.number)
 
 
 def agr_gc_label(value, tokens, i):
     one = tokens[i][3]
     another = tokens[i+int(value)][3]
 
-    return one.gender == another.gender and one.case == another.case
+    return (one.gender == another.gender or not one.gender or not another.gender) \
+        and (one.case == another.case or not one.case or not another.case)
 
 
 LABELS_CHECK = {
