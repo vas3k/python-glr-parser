@@ -20,7 +20,6 @@ class GLRAutomaton(Parser):
         self.dictionaries = dictionaries or {}
         self.results = []
         self.debug_mode = debug
-        self.last_reduce_rule = None
 
     def __call__(self, text):
         return self.recognize(text, chain(self.scanner(text), [('$', '$', len(text))]))
@@ -36,10 +35,9 @@ class GLRAutomaton(Parser):
             labels_ok = True
 
             for token_num, token in enumerate(tokens):
-                self.debug("\n\n\nNEW ITERATION TOKEN", token[1])
+                self.debug("\n\n\nNEW ITERATION. Token:", token[1])
                 self.debug(token)
                 if len(stack.active) == 0:
-                    self.debug("LEN STACK ACTIVE")
                     if not self.error_detected(text, tokens, prev_tok, stack.previously_active):
                         text, tokens = self.without_first_word(text, tokens)
                         break
@@ -55,10 +53,9 @@ class GLRAutomaton(Parser):
                     raw_token = "'%s'" % token[1]
                     if raw_token in self.ACTION[state]:
                         for r, rule in ifilter(lambda x: x[0] == 'R', self.ACTION[state][raw_token]):
-                            self.debug("- REDUCE")
-                            self.debug("-- ACTIONS", self.ACTION[state][raw_token])
-                            self.debug("-- RAW", node, rule)
-                            self.last_reduce_rule = rule
+                            self.debug("- Reduce")
+                            self.debug("-- Actions", self.ACTION[state][raw_token])
+                            self.debug("-- Raw token", node, rule)
                             labels_ok = self.check_labels(tokens, self.R.labels[rule])
                             if not labels_ok:
                                 break
@@ -67,10 +64,9 @@ class GLRAutomaton(Parser):
                     # обычные состояния
                     if labels_ok:
                         for r, rule in ifilter(lambda x: x[0] == 'R', self.ACTION[state][token[0]]):
-                            self.debug("- REDUCE")
-                            self.debug("-- ACTIONS", self.ACTION[state])
-                            self.debug("-- NORMAL", node, rule)
-                            self.last_reduce_rule = rule
+                            self.debug("- Reduce")
+                            self.debug("-- Actions", self.ACTION[state])
+                            self.debug("-- Normal", node, rule)
                             labels_ok = self.check_labels(tokens, self.R.labels[rule])
                             if not labels_ok:
                                 break
@@ -79,10 +75,9 @@ class GLRAutomaton(Parser):
                     # имитация конца предложения
                     if labels_ok:
                         for r, rule in ifilter(lambda x: x[0] == 'R', self.ACTION[state]["$"]):
-                            self.debug("- REDUCE")
-                            self.debug("-- ACTIONS", self.ACTION[state])
+                            self.debug("- Reduce")
+                            self.debug("-- Actions", self.ACTION[state])
                             self.debug("-- EOS", node, rule)
-                            self.last_reduce_rule = rule
                             labels_ok = self.check_labels(tokens, self.R.labels[rule])
                             if not labels_ok:
                                 break
@@ -94,7 +89,7 @@ class GLRAutomaton(Parser):
 
                 # последняя свертка не удовлетворила лейблам
                 if not labels_ok:
-                    self.debug("- LABELS NOT OK")
+                    self.debug("- Labels not OK")
                     text, tokens = self.without_first_word(text, tokens)
                     break
 
@@ -102,11 +97,9 @@ class GLRAutomaton(Parser):
                 if token[0] == '$':
                     acc = stack.accepts()
                     if acc:
-                        self.debug("Stack accepts")
                         self.results.append(text)
-                        self.debug("- APPEND RESULTS", self.results)
+                        self.debug("- Found new result:", self.results)
                     else:
-                        self.debug("Stack NOT accepts")
                         self.error_detected(text, tokens, token, stack.active)
                     return self.results
 
@@ -120,17 +113,17 @@ class GLRAutomaton(Parser):
                     raw_token = "'%s'" % token[1]
                     if raw_token in self.ACTION[state]:
                         for r, state in ifilter(lambda x: x[0] == 'S',  self.ACTION[state][raw_token]):
-                            self.debug("- SHIFT")
-                            self.debug("-- RAW", node, token)
+                            self.debug("- Shift")
+                            self.debug("-- Raw", node, token)
                             stack.shift(node, (token,), state)
 
                     # обычные состояния
                     for r, state in ifilter(lambda x: x[0] == 'S',  self.ACTION[state][token[0]]):
-                        self.debug("- SHIFT")
-                        self.debug("-- NORMAL", node, token)
+                        self.debug("- Shift")
+                        self.debug("-- Normal", node, token)
                         stack.shift(node, (token,), state)
 
-                    self.debug("- STACK")
+                    self.debug("- Stack:")
                     if self.debug_mode:
                         stack.dump()
 
@@ -154,24 +147,23 @@ class GLRAutomaton(Parser):
                        if len(self.ACTION[st.data][kw]) > 0
                           and kw not in self.R and kw != '$')
 
-        self.debug("Got", cur_tok)
         if not toks:
-            self.debug("NOW TEXT", text)
-            self.debug("-- PART", text[:cur_tok[2]])
+            self.debug("Text", text)
+            self.debug("-- Part", text[:cur_tok[2]])
             self.results.append(text[:cur_tok[2]])
-            self.debug("- APPEND RESULTS", self.results)
+            self.debug("- Found new result:", self.results)
 
         return False
 
     def check_labels(self, tokens, labels):
-        self.debug("-- LABELS", labels)
+        self.debug("- Checking labels...", labels)
         for i in xrange(len(labels)):
             if labels[i]:
                 for label_key, label_values in labels[i].iteritems():
                     for label_value in label_values:
-                        self.debug("--- Check label:", label_key, label_value)
+                        self.debug("-- Check label:", label_key, label_value)
                         ok = LABELS_CHECK[label_key](label_value, tokens, i)
-                        self.debug("---- ", ok)
+                        self.debug("--- ", ok)
                         if not ok:
                             return False
         return True
