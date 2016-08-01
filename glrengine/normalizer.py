@@ -46,8 +46,10 @@ class GLRNormalizer(object):
                         # tokname is a set of word pos tags, e.g. 
                         # set(['noun', 'adj']) for чёрный
                         tokname = tokname | current_tokname
-                    multitag._grammemes_cache =  multitag.grammemes | lemma.tag.grammemes
-                    multitag._str = ",".join(multitag.grammemes) # not required, but useful for debugging
+                        multitag._grammemes_cache =  multitag.grammemes | lemma.tag.grammemes
+                        multitag._str = ",".join(multitag.grammemes) # not required, but useful for debugging
+            else:
+                tokname = {tokname}
             # print tokname, tokvalue, tokpos, multitag, orig_tokvalue
             results.append((tokname, tokvalue, tokpos, multitag, orig_tokvalue))
         return results

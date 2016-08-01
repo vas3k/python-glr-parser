@@ -94,7 +94,7 @@ class GLRAutomaton(Parser):
                     break
 
                 # конец?
-                if token[0] == '$':
+                if token[0] == {'$'}:
                     acc = stack.accepts()
                     if acc:
                         self.results.append(text)
