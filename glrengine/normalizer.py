@@ -37,7 +37,14 @@ class GLRNormalizer(object):
             if tokname == "word":
                 morphed = self.morph.parse(tokvalue)
                 for lemma in morphed:
-                    current_tokname = {self.TAG_MAPPER.get(lemma.tag.POS) or tokname}
+                    supported_tag = self.TAG_MAPPER.get(lemma.tag.POS)
+                    if supported_tag:
+                        current_tokname = {supported_tag}
+                    else:
+                        if not isinstance(tokname, set):
+                            current_tokname = {tokname}
+                        else:
+                            current_tokname = tokname
                     if not multitag:
                         multitag = self.morph.TagClass(",".join(lemma.tag.grammemes))
                         tokvalue = lemma.normal_form
