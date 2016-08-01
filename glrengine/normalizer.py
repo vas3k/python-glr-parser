@@ -37,13 +37,15 @@ class GLRNormalizer(object):
             if tokname == "word":
                 morphed = self.morph.parse(tokvalue)
                 for lemma in morphed:
+                    current_tokname = {self.TAG_MAPPER.get(lemma.tag.POS) or tokname}
                     if not multitag:
                         multitag = self.morph.TagClass(",".join(lemma.tag.grammemes))
                         tokvalue = lemma.normal_form
-                        # TODO: make tokname an array, because word can be in multiple POS
-                        # example: чёрный (сущ. / прил.)
-                        tokname = self.TAG_MAPPER.get(lemma.tag.POS) or tokname
-                    # tokparams = unicode(morphed[0].tag).lower().split(",")
+                        tokname = current_tokname
+                    else:
+                        # tokname is a set of word pos tags, e.g. 
+                        # set(['noun', 'adj']) for чёрный
+                        tokname = tokname | current_tokname
                     multitag._grammemes_cache =  multitag.grammemes | lemma.tag.grammemes
                     multitag._str = ",".join(multitag.grammemes) # not required, but useful for debugging
             # print tokname, tokvalue, tokpos, multitag, orig_tokvalue
