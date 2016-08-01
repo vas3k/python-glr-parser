@@ -33,16 +33,21 @@ class GLRNormalizer(object):
         for token in tokens:
             tokname, tokvalue, tokpos = token
             orig_tokvalue = tokvalue
-            tokparams = []
+            multitag = None # multitag collects all grammemes of lemma forms
             if tokname == "word":
                 morphed = self.morph.parse(tokvalue)
-                if morphed:
-                    tokvalue = morphed[0].normal_form
-                    tokname = self.TAG_MAPPER.get(morphed[0].tag.POS) or tokname
+                for lemma in morphed:
+                    if not multitag:
+                        multitag = self.morph.TagClass(",".join(lemma.tag.grammemes))
+                        tokvalue = lemma.normal_form
+                        # TODO: make tokname an array, because word can be in multiple POS
+                        # example: чёрный (сущ. / прил.)
+                        tokname = self.TAG_MAPPER.get(lemma.tag.POS) or tokname
                     # tokparams = unicode(morphed[0].tag).lower().split(",")
-                    tokparams = morphed[0].tag
-                    # print tokname, tokvalue, tokpos, tokparams, orig_tokvalue
-            results.append((tokname, tokvalue, tokpos, tokparams, orig_tokvalue))
+                    multitag._grammemes_cache =  multitag.grammemes | lemma.tag.grammemes
+                    multitag._str = ",".join(multitag.grammemes) # not required, but useful for debugging
+            # print tokname, tokvalue, tokpos, multitag, orig_tokvalue
+            results.append((tokname, tokvalue, tokpos, multitag, orig_tokvalue))
         return results
 
     def normal(self, word):
