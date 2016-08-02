@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from glrengine.normalizer import morph_parser
 from glrengine.labels import LABELS_CHECK
-from parser import Parser
+from glrengine.parser import Parser
 from itertools import ifilter, chain
-from stack import Stack
-from scanner import token_line_col
+from glrengine.stack import Stack
+from glrengine.scanner import token_line_col
 
 INITIAL_TOKEN = ('#', '#', 0)
 
@@ -63,7 +63,7 @@ class GLRAutomaton(Parser):
 
                     # обычные состояния
                     if labels_ok:
-                        for r, rule in ifilter(lambda x: x[0] == 'R', self.ACTION[state][token[0]]):
+                        for r, rule in ifilter(lambda x: x[0] == 'R', chain(*(self.ACTION[state][t] for t in token[0]))):
                             self.debug("- Reduce")
                             self.debug("-- Actions", self.ACTION[state])
                             self.debug("-- Normal", node, rule)
@@ -94,7 +94,7 @@ class GLRAutomaton(Parser):
                     break
 
                 # конец?
-                if token[0] == '$':
+                if token[0] == {'$'}:
                     acc = stack.accepts()
                     if acc:
                         self.results.append(text)
@@ -118,7 +118,7 @@ class GLRAutomaton(Parser):
                             stack.shift(node, (token,), state)
 
                     # обычные состояния
-                    for r, state in ifilter(lambda x: x[0] == 'S',  self.ACTION[state][token[0]]):
+                    for r, state in ifilter(lambda x: x[0] == 'S',  chain(*(self.ACTION[state][t] for t in token[0]))):
                         self.debug("- Shift")
                         self.debug("-- Normal", node, token)
                         stack.shift(node, (token,), state)
@@ -178,4 +178,4 @@ class GLRAutomaton(Parser):
 
     def debug(self, *args):
         if self.debug_mode:
-            print " ".join(map(unicode, args))
+            print(" ".join(map(unicode, args)))
