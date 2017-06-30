@@ -6,6 +6,10 @@ def gram_label(value, tokens, i):
     return value in tokens[i][3]
 
 
+def gram_not_label(value, tokens, i):
+    return not value in tokens[i][3] 
+
+
 def reg_l_all_label(value, tokens, i):
     return tokens[i][4].islower()
 
@@ -63,6 +67,7 @@ def agr_gc_label(value, tokens, i):
 
 LABELS_CHECK = {
     "gram": gram_label,
+    "gram-not": gram_not_label,
     "reg-l-all": reg_l_all_label,
     "reg-h-first": reg_h_first_label,
     "reg-h-all": reg_h_all_label,
